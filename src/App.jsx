@@ -117,13 +117,42 @@ export default function App() {
             <h2 className="text-3xl font-black italic uppercase tracking-tighter">Historique</h2>
             <button onClick={() => setShowHistory(false)} className="bg-white/10 px-6 py-2 rounded-full text-[10px] font-black uppercase">Fermer</button>
           </div>
-          <div className="space-y-3">
-            <input type="text" placeholder="Rechercher séance ou exercice..." className="w-full bg-[#1a1a1a] p-4 rounded-xl text-sm border border-white/5 outline-none" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-            <div className="flex gap-2">
-              <input type="date" className="flex-1 bg-[#1a1a1a] p-3 rounded-xl text-xs" value={dateStart} onChange={e => setDateStart(e.target.value)} />
-              <input type="date" className="flex-1 bg-[#1a1a1a] p-3 rounded-xl text-xs" value={dateEnd} onChange={e => setDateEnd(e.target.value)} />
-            </div>
-          </div>
+          {/* BARRE DE RECHERCHE & FILTRES */}
+<div className="space-y-4">
+  <div className="relative">
+    <input 
+      type="text" 
+      placeholder="Rechercher une séance..." 
+      className="w-full bg-[#1a1a1a] p-4 rounded-xl text-base border border-white/5 outline-none focus:border-accent/50"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+  </div>
+  
+  <div className="flex gap-3">
+    {/* CHAMP DATE DE DÉBUT */}
+    <div className="flex-1 bg-[#1a1a1a] rounded-xl border border-white/5 p-2 px-3">
+      <label className="block text-[9px] font-black uppercase text-accent mb-1">Date Début</label>
+      <input 
+        type="date" 
+        className="w-full bg-transparent text-sm outline-none text-white uppercase font-bold"
+        value={dateStart}
+        onChange={(e) => setDateStart(e.target.value)}
+      />
+    </div>
+
+    {/* CHAMP DATE DE FIN */}
+    <div className="flex-1 bg-[#1a1a1a] rounded-xl border border-white/5 p-2 px-3">
+      <label className="block text-[9px] font-black uppercase text-accent mb-1">Date Fin</label>
+      <input 
+        type="date" 
+        className="w-full bg-transparent text-sm outline-none text-white uppercase font-bold"
+        value={dateEnd}
+        onChange={(e) => setDateEnd(e.target.value)}
+      />
+    </div>
+  </div>
+</div>
         </div>
         <div className="p-6 space-y-6 pb-20">
           {filtered.map((s, i) => (

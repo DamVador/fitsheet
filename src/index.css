@@ -4,11 +4,15 @@
   --color-accent: #E94560;
 }
 
-:root {
-  --app-color: #E94560;
+/* EMPECHE LE ZOOM SUR FOCUS ET LES GESTES PARASITES */
+input, textarea, select, button {
+  font-size: 16px !important; /* Force 16px pour éviter le zoom iOS */
+  touch-action: manipulation; /* Désactive le double-tap pour zoomer */
 }
 
 body {
   background-color: #0f0f0f;
   color: white;
+  overscroll-behavior-y: contain; /* Empêche le "pull-to-refresh" qui actualise la page par erreur */
+  -webkit-tap-highlight-color: transparent; /* Retire le rectangle bleu au clic sur iPhone */
 }
