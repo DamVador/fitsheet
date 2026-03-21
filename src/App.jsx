@@ -16,9 +16,9 @@ export default function App() {
 
   // --- AUTHENTIFICATION ---
   const login = useGoogleLogin({
-    onSuccess: (res) => { 
-      localStorage.setItem('user', JSON.stringify(res)); 
-      setUser(res); 
+    onSuccess: (res) => {
+      localStorage.setItem('user', JSON.stringify(res));
+      setUser(res);
     },
     scope: 'https://www.googleapis.com/auth/spreadsheets',
   });
@@ -46,12 +46,12 @@ export default function App() {
 
         const cycles = parseSheetData(d.valueRanges[0].values || [], rawLogs);
         const conf = Object.fromEntries(d.valueRanges[2]?.values || []);
-        setProgram({ 
-          cycles, 
-          config: { 
-            name: conf.coach_name || "Coach", 
-            logo: conf.coach_logo || "", 
-            color: conf.app_color || "#E94560" 
+        setProgram({
+          cycles,
+          config: {
+            name: conf.coach_name || "Coach",
+            logo: conf.coach_logo || "",
+            color: conf.app_color || "#E94560"
           }
         });
       }
@@ -64,14 +64,19 @@ export default function App() {
     const cycle = program.cycles.find(c => c.workouts.some(w => w.name === activeWk.name));
     const weekNum = logs.filter(l => l[1] === activeWk.name && l[0].includes(cycle.name)).length + 1;
     const date = new Date().toISOString().split('T')[0];
-    
+
     const rows = activeWk.exercises.map(ex => {
+      // 1. Métadonnées de base
       const r = [`${date} | ${cycle.name} | S${weekNum}`, activeWk.name, ex.block, ex.name];
-      const MAX_SETS = 12; 
-      for(let i=0; i < MAX_SETS; i++) { 
-        r.push(data[`${ex.name}_${i}_w`]||"", data[`${ex.name}_${i}_r`]||""); 
+
+      // 2. INSERTION DE LA NOTE ICI (Index 4 / Colonne E)
+      r.push(userNotes[ex.name] || "");
+
+      // 3. Séries (S'insèrent après la note)
+      const MAX_SETS = 12;
+      for (let i = 0; i < MAX_SETS; i++) {
+        r.push(data[`${ex.name}_${i}_w`] || "", data[`${ex.name}_${i}_r`] || "");
       }
-      r.push(userNotes[ex.name] || ""); 
       return r;
     });
 
@@ -94,17 +99,17 @@ export default function App() {
 
     // Sécurité : On vérifie que curr[0] (id) et curr[1] (nom) existent avant de grouper
     const grouped = logs.reduce((acc, curr) => {
-      const id = curr[0]; 
+      const id = curr[0];
       const name = curr[1];
-      if (!id || !name) return acc; 
+      if (!id || !name) return acc;
       if (!acc[id]) acc[id] = { name: name, dateId: id, dateOnly: id.split(' | ')[0], ex: [] };
       acc[id].ex.push(curr); return acc;
     }, {});
 
     const filtered = Object.values(grouped).reverse().filter(s => {
       // Sécurité : On ajoute ?.toLowerCase() pour éviter de planter sur un texte manquant
-      const matchesText = (s.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
-                          s.ex.some(e => (e[3]?.toLowerCase() || "").includes(searchTerm.toLowerCase()));
+      const matchesText = (s.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        s.ex.some(e => (e[3]?.toLowerCase() || "").includes(searchTerm.toLowerCase()));
       const matchesStart = !dateStart || s.dateOnly >= dateStart;
       const matchesEnd = !dateEnd || s.dateOnly <= dateEnd;
       return matchesText && matchesStart && matchesEnd;
@@ -118,41 +123,41 @@ export default function App() {
             <button onClick={() => setShowHistory(false)} className="bg-white/10 px-6 py-2 rounded-full text-[10px] font-black uppercase">Fermer</button>
           </div>
           {/* BARRE DE RECHERCHE & FILTRES */}
-<div className="space-y-4">
-  <div className="relative">
-    <input 
-      type="text" 
-      placeholder="Rechercher une séance..." 
-      className="w-full bg-[#1a1a1a] p-4 rounded-xl text-base border border-white/5 outline-none focus:border-accent/50"
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-    />
-  </div>
-  
-  <div className="flex gap-3">
-    {/* CHAMP DATE DE DÉBUT */}
-    <div className="flex-1 bg-[#1a1a1a] rounded-xl border border-white/5 p-2 px-3">
-      <label className="block text-[9px] font-black uppercase text-accent mb-1">Date Début</label>
-      <input 
-        type="date" 
-        className="w-full bg-transparent text-sm outline-none text-white uppercase font-bold"
-        value={dateStart}
-        onChange={(e) => setDateStart(e.target.value)}
-      />
-    </div>
+          <div className="space-y-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Rechercher une séance..."
+                className="w-full bg-[#1a1a1a] p-4 rounded-xl text-base border border-white/5 outline-none focus:border-accent/50"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
 
-    {/* CHAMP DATE DE FIN */}
-    <div className="flex-1 bg-[#1a1a1a] rounded-xl border border-white/5 p-2 px-3">
-      <label className="block text-[9px] font-black uppercase text-accent mb-1">Date Fin</label>
-      <input 
-        type="date" 
-        className="w-full bg-transparent text-sm outline-none text-white uppercase font-bold"
-        value={dateEnd}
-        onChange={(e) => setDateEnd(e.target.value)}
-      />
-    </div>
-  </div>
-</div>
+            <div className="flex gap-3">
+              {/* CHAMP DATE DE DÉBUT */}
+              <div className="flex-1 bg-[#1a1a1a] rounded-xl border border-white/5 p-2 px-3">
+                <label className="block text-[9px] font-black uppercase text-accent mb-1">Date Début</label>
+                <input
+                  type="date"
+                  className="w-full bg-transparent text-sm outline-none text-white uppercase font-bold"
+                  value={dateStart}
+                  onChange={(e) => setDateStart(e.target.value)}
+                />
+              </div>
+
+              {/* CHAMP DATE DE FIN */}
+              <div className="flex-1 bg-[#1a1a1a] rounded-xl border border-white/5 p-2 px-3">
+                <label className="block text-[9px] font-black uppercase text-accent mb-1">Date Fin</label>
+                <input
+                  type="date"
+                  className="w-full bg-transparent text-sm outline-none text-white uppercase font-bold"
+                  value={dateEnd}
+                  onChange={(e) => setDateEnd(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
         </div>
         <div className="p-6 space-y-6 pb-20">
           {filtered.map((s, i) => (
@@ -164,9 +169,9 @@ export default function App() {
                   <div key={j} className="space-y-1">
                     <div className="flex justify-between text-[10px] uppercase font-bold text-gray-400">
                       <span className="truncate pr-4">{ex[3]}</span>
-                      <span className="text-white flex-shrink-0">{ex[4]}kg x {ex[5]}</span>
+                      <span className="text-white flex-shrink-0">{ex[5] || '--'}kg x {ex[6] || '--'}</span>
                     </div>
-                    {ex[28] && <p className="text-[9px] text-gray-600 italic bg-black/20 p-2 rounded-lg mt-1">Note: {ex[28]}</p>}
+                    {ex[4] && <p className="text-[9px] text-gray-600 italic bg-black/20 p-2 rounded-lg mt-1">Note: {ex[4]}</p>}
                   </div>
                 ))}
               </div>
@@ -197,25 +202,25 @@ export default function App() {
       <p className="text-gray-500 mb-8 text-sm">Collez l'URL de votre Google Sheets coach</p>
       <input className="w-full bg-[#1a1a1a] p-5 rounded-2xl mb-4 border-2 border-transparent focus:border-accent outline-none text-lg" placeholder="https://docs.google.com/..." onChange={e => {
         const id = e.target.value.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
-        if(id) { localStorage.setItem('sheetId', id); setSheetId(id); }
+        if (id) { localStorage.setItem('sheetId', id); setSheetId(id); }
       }} />
     </div>
   );
 
   if (activeWk) return (
-    <ActiveWorkout 
-      workout={activeWk} 
-      cycleName={program?.cycles.find(c => c.workouts.includes(activeWk))?.name} 
-      logs={logs} 
-      onBack={() => setActiveWk(null)} 
-      onSave={saveWk} 
+    <ActiveWorkout
+      workout={activeWk}
+      cycleName={program?.cycles.find(c => c.workouts.includes(activeWk))?.name}
+      logs={logs}
+      onBack={() => setActiveWk(null)}
+      onSave={saveWk}
     />
   );
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       {loading && <div className="fixed inset-0 z-[1000] bg-black/60 flex items-center justify-center backdrop-blur-sm"><div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div></div>}
-      
+
       {success && (
         <div className="fixed inset-0 z-[800] bg-[#0f0f0f]/95 backdrop-blur-lg flex items-center justify-center p-6 text-center">
           <div className="bg-[#161616] p-10 rounded-[3.5rem] border border-accent/20 max-w-sm w-full shadow-2xl animate-in zoom-in duration-300">

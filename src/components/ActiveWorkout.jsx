@@ -68,7 +68,7 @@ export default function ActiveWorkout({ workout, cycleName, logs, onSave, onBack
                 {[...Array(parseInt(week.sets) || 0)].map((_, s) => (
                   <div key={s} className="flex gap-2 items-end">
                     <div className="flex-1 space-y-1">
-                      <div className="flex justify-between px-1"><span className="text-[8px] font-black text-gray-600 uppercase">Set {s+1}</span><span className="text-[8px] font-black text-gray-400 uppercase">Last: {last ? last[4+s*2] : '--'}</span></div>
+                      <div className="flex justify-between px-1"><span className="text-[8px] font-black text-gray-600 uppercase">Set {s+1}</span><span className="text-[8px] font-black text-gray-400 uppercase">Last: {last ? last[5+s*2] : '--'}</span></div>
                       <input type="number" pattern="\d*" placeholder="KG" className="w-full h-16 bg-[#1a1a1a] rounded-xl text-center text-2xl font-black focus:ring-4 ring-accent/20 outline-none border-none" 
                         value={data[`${ex.name}_${s}_w`] || ''} onChange={e => setData({...data, [`${ex.name}_${s}_w`]: e.target.value})} />
                     </div>
