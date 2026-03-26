@@ -51,21 +51,22 @@ export function useFitSheet() {
     }, [user, sheetId]);
 
     // Calcule sessionCount au moment d'ouvrir une séance — snapshot stable
-    // Dans useFitSheet.js
     const getSessionCount = (workoutName, cycleName) => {
-        return logs.filter(l => {
-            if (!l[0] || !l[1]) return false;
-            const matchWorkout = l[1] === workoutName;
-            const matchCycle = l[0].includes(cycleName);
-            // On s'assure que c'est bien une entrée S1, S2, S3 valide (1 ou 2 chiffres max)
+        const uniqueSessions = new Set();
+        
+        logs.forEach(l => {
+            if (!l[0] || !l[1]) return;
+            if (l[1] !== workoutName) return;
+            if (!l[0].includes(cycleName)) return;
+            // Vérifier que c'est un Sx valide (1 ou 2 chiffres)
             const weekMatch = l[0].match(/\| S(\d{1,2})$/);
-            return matchWorkout && matchCycle && weekMatch !== null;
-        // Dédupliquer par date+semaine — une séance = 1 count même si plusieurs exos
-        }).reduce((acc, l) => {
-            const key = l[0]; // "2026-03-21 | CYCLE X | S1"
-            acc.add(key);
-            return acc;
-        }, new Set()).size;
+            if (!weekMatch) return;
+            // Clé unique = date + semaine (pas exercice)
+            // ex: "2026-03-21 | CYCLE X | S1" → une seule session même si 5 exercices
+            uniqueSessions.add(l[0]);
+        });
+
+        return uniqueSessions.size;
     };
 
     const saveWk = async (activeWk, cycleName, sessionCount, data, duration, totalSets, userNotes) => {

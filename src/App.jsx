@@ -89,6 +89,15 @@ export default function App() {
     />
   );
 
+  const getInitials = (name) => {
+    if (!name) return 'FS';
+    return name.split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   // ── Écran principal ────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white p-4 max-w-md mx-auto pb-20">
@@ -103,15 +112,34 @@ export default function App() {
       {/* Header */}
       <header className="flex items-center justify-between mb-12 mt-6">
         <div className="flex items-center gap-4">
-          {program?.config.logo && (
-            <img src={program.config.logo} className="w-12 h-12 rounded-full border border-accent/20 object-cover" alt="logo" />
+          {/* Logo coach — URL ou initiales */}
+          {program?.config.logo && program.config.logo !== 'https://exemple.com/logo.png' ? (
+            <img
+              src={program.config.logo}
+              className="w-12 h-12 rounded-full border border-accent/20 object-cover"
+              alt="logo"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full border border-accent/20 bg-accent/10 flex items-center justify-center flex-shrink-0">
+              <span className="text-accent font-black text-sm">
+                {getInitials(program?.config.name)}
+              </span>
+            </div>
           )}
+
           <div>
-            <p className="text-[10px] text-accent font-black uppercase tracking-widest leading-none mb-1 italic">FitSheet</p>
-            <h1 className="font-bold text-lg leading-none">{program?.config.name}</h1>
+            {/* Logo FitSheet texte — "FS" en accent si pas de logo */}
+            <p className="text-[10px] text-accent font-black uppercase tracking-widest leading-none mb-1 italic">
+              Fit<span className="opacity-60">Sheet</span>
+            </p>
+            <h1 className="font-bold text-lg leading-none">Suivi par {program?.config.name}</h1>
           </div>
         </div>
-        <button onClick={() => setShowHistory(true)} className="bg-white/5 w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-transform">
+
+        <button
+          onClick={() => setShowHistory(true)}
+          className="bg-white/5 w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-transform"
+        >
           <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -137,13 +165,14 @@ export default function App() {
                   const isSug = i === 0 && w.name === suggestedName;
                   const count = getSessionCount(w.name, c.name);
                   const totalWeeks = w.exercises[0]?.weeks.length || 1;
+                  const currentWeekDisplay = Math.min(count + 1, totalWeeks);
+
                   return (
                     <button
                       key={j}
                       onClick={() => openWorkout(w, c.name)}
-                      className={`p-6 rounded-[2.5rem] border text-left flex items-center justify-between min-h-[100px] shadow-xl transition-all active:scale-[0.97] ${
-                        isSug ? 'border-accent bg-accent/5 ring-1 ring-accent/50 shadow-accent/10' : 'border-white/5 bg-[#161616]'
-                      }`}
+                      className={`p-6 rounded-[2.5rem] border text-left flex items-center justify-between min-h-[100px] shadow-xl transition-all active:scale-[0.97] ${isSug ? 'border-accent bg-accent/5 ring-1 ring-accent/50 shadow-accent/10' : 'border-white/5 bg-[#161616]'
+                        }`}
                     >
                       <div className="flex-1 pr-4">
                         {isSug && <p className="text-[8px] text-accent font-black uppercase mb-1 animate-pulse">Suivante</p>}
@@ -151,12 +180,11 @@ export default function App() {
                         <h3 className="text-xl font-black italic uppercase leading-tight">{w.name}</h3>
                         {/* Indicateur de semaine */}
                         <p className="text-[9px] text-gray-600 mt-1 font-bold">
-                          Semaine {Math.min(count + 1, totalWeeks)} / {totalWeeks}
+                          Semaine {currentWeekDisplay} / {totalWeeks}
                         </p>
                       </div>
-                      <div className={`w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center font-black text-lg ${
-                        isSug ? 'bg-accent text-white shadow-lg' : 'bg-accent/10 text-accent'
-                      }`}>▶</div>
+                      <div className={`w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center font-black text-lg ${isSug ? 'bg-accent text-white shadow-lg' : 'bg-accent/10 text-accent'
+                        }`}>▶</div>
                     </button>
                   );
                 })}
