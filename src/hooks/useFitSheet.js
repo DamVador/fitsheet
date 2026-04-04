@@ -16,7 +16,6 @@ export function useFitSheet() {
 
     const logout = () => {
         localStorage.removeItem('user');
-        localStorage.removeItem('sheetId');
         localStorage.removeItem('active_draft');
         setUser(null);
         setProgram(null);
@@ -32,7 +31,15 @@ export function useFitSheet() {
                 { headers: { Authorization: `Bearer ${user.access_token}` } }
             );
             const d = await res.json();
-            if (d.error?.code === 401) { logout(); return; }
+
+            if (d.error?.code === 401) {
+                // Token expiré — effacer uniquement le user, pas le sheetId
+                localStorage.removeItem('user');
+                setUser(null);
+                setProgram(null);
+                return;
+            }
+
             if (d.valueRanges) {
                 const rawLogs = (d.valueRanges[1].values || []).filter(r => r.length > 2);
                 setLogs(rawLogs);
@@ -47,13 +54,17 @@ export function useFitSheet() {
                     },
                 });
             }
-        } catch (e) { console.error(e); } finally { setLoading(false); }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
     }, [user, sheetId]);
 
     // Calcule sessionCount au moment d'ouvrir une séance — snapshot stable
     const getSessionCount = (workoutName, cycleName) => {
         const uniqueSessions = new Set();
-        
+
         logs.forEach(l => {
             if (!l[0] || !l[1]) return;
             if (l[1] !== workoutName) return;

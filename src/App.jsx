@@ -204,6 +204,18 @@ export default function App() {
         Déconnexion
       </button>
 
+      <button
+        onClick={() => {
+          if (window.confirm('Changer de sheet ? Le sheet actuel sera dissocié.')) {
+            localStorage.removeItem('sheetId');
+            setSheetId(null);
+          }
+        }}
+        className="mt-3 mb-12 text-gray-800 text-[9px] font-black uppercase block mx-auto tracking-[0.3em] active:text-gray-500"
+      >
+        Changer de sheet
+      </button>
+
       {showHistory && <HistoryView logs={logs} onClose={() => setShowHistory(false)} />}
     </div>
   );
